@@ -1,0 +1,309 @@
+body {
+	margin: 0px;
+	font-family: Source Sans Pro,sans-serif;
+}
+
+.top-bar {
+    font-size: 24px;
+    font-weight: 500;
+    box-shadow: 0 1px 8px 2px rgba(0,0,0,.2);
+    transition: all .25s cubic-bezier(.23,1,.32,1) 50ms;
+    background-color: #0d87c0;
+    color: #fff;
+	padding: 20px 10px;	
+    align-items: center;
+	line-height: 2em;
+}
+
+.top-bar input {
+    font-size: 24px;
+    font-weight: 500;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    color: #fff;
+    transition: all .15s cubic-bezier(.23,1,.32,1) 0ms;
+	margin: 0px 10px;
+}
+
+.top-bar .input {
+    border-bottom: 2px solid #bbdefb;
+}
+
+.top-bar .submit {
+    background-color: #009973;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 16px;
+    border-radius: 2px;
+    min-width: 64px;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    transition: all .25s cubic-bezier(.23,1,.32,1) 50ms;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.top-bar .submit:hover {
+    color: #fff;
+    background-color: #00664d;
+    border-color: transparent;
+}
+
+#tables,#msg {
+    margin: 20px;
+}
+
+#msg {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.overlay {
+	position: fixed;
+	background-color: #00b386;
+	z-index: 10;
+	cursor: not-allowed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0.7;
+	display:none;
+	font-size: 5em;
+    text-align: center;
+    line-height: 5em;
+	animation: blinker 2s linear infinite;
+}
+
+.deletionOverlay {
+        display: none;
+    	z-index: 10;
+        align-items: center;
+        animation: slideDown .25s;
+       
+        justify-content: center;
+        min-height: calc(100% - 16px);
+        width: 100%;
+        z-index: 900;
+    
+}
+
+.modal-dialog {
+    align-items: center;
+    animation: slideDown .25s;
+    display: flex;
+    justify-content: center;
+    min-height: calc(100% - 16px);
+    width: 100%;
+    z-index: 900;
+    top: 10%;
+    position: absolute;
+}
+
+.modal-dialog__pane {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 0 8px 0 #00000008,0 8px 32px 0 #10213c3d;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    max-height: 100%;
+    min-height: 100px;
+    min-width: 100px;
+    position: relative;
+}
+
+.modal-dialog__header {
+    display: flex;
+    flex-shrink: 0;
+    max-width: 100%;
+    padding: 24px;
+    padding-bottom: 0;
+    position: relative;
+    width: 100%;
+}
+
+
+.modal-dialog__header-title{
+    position: relative;
+    left: 30%;
+}
+
+.confirmation-dialog .modal-dialog__header {
+    max-width: 560px;
+}
+
+.confirmation-dialog__body {
+    color: #151515;
+    font-family: Inter,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    max-width: 512px;
+    min-width: 512px;
+}
+
+.modal-dialog__content {
+    color: #151515;
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-family: Inter,sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    min-height: 0;
+    padding: 0 24px;
+}
+
+.btn--square-quinary.btn--quinary {
+    background: #0000;
+    border-radius: 4px;
+    box-shadow: 0 0;
+    box-shadow: none;
+    color: #151515;
+    transition: all .25s cubic-bezier(.23,1,.32,1) 50ms,border-width 0ms,padding 0ms,box-shadow 0ms;
+}
+
+.confirmationContainer{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.cancel::before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    border-radius: 5000px;
+}
+
+.cancel {
+    cursor: pointer;
+    margin-bottom: 0px;
+    position: relative;
+    touch-action: manipulation;
+    user-select: none;
+    white-space: nowrap;
+    height: 40px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.1ch;
+    text-transform: uppercase;
+    border-radius: 5000px;
+    outline: none;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 50ms, color, border-color;
+    border-width: 1px;
+    border-style: solid;
+    padding: 0px 23px;
+    background: transparent;
+    border-color: rgb(219, 60, 0);
+}
+
+.confirmation::before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    border-radius: 5000px;
+}
+
+.confirmation {
+    cursor: pointer;
+    margin-bottom: 0px;
+    position: relative;
+    touch-action: manipulation;
+    user-select: none;
+    white-space: nowrap;
+    height: 40px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.1ch;
+    text-transform: uppercase;
+    box-shadow: rgba(244, 92, 35, 0.14) 0px 8px 14px 2px, rgba(244, 92, 35, 0.12) 0px 6px 20px 5px, rgba(244, 92, 35, 0.2) 0px 8px 10px -5px;
+    border-radius: 5000px;
+    outline: none;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 50ms, color, border-color;
+    border-width: 0px;
+    border-style: solid;
+    padding: 0px 24px;
+    background: rgb(219, 0, 0);
+    border-color: transparent;
+}
+
+
+@keyframes blinker {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+#orphaned {
+	accent-color: #009973;
+    height: 20px;
+    width: 20px;
+}
+
+.app_name {
+	text-align: center;
+    font-size: 2em;
+    margin: 20px;
+    color: #009973;
+    font-weight: bold;
+    text-shadow: 1px 1px #007777;
+}
+
+#innerButton{
+    width: 120px;
+    height: 150px;
+}
+
+#deleteButton{
+    cursor: pointer;
+    margin-bottom: 0px;
+    position: relative;
+    touch-action: manipulation;
+    user-select: none;
+    white-space: nowrap;
+    height: 40px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0.1ch;
+    text-transform: uppercase;
+    box-shadow: rgba(244, 92, 35, 0.14) 0px 8px 14px 2px, rgba(244, 92, 35, 0.12) 0px 6px 20px 5px, rgba(244, 92, 35, 0.2) 0px 8px 10px -5px;
+    border-radius: 5000px;
+    outline: none;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 50ms, color, border-color;
+    border-width: 0px;
+    border-style: solid;
+    padding: 0px 24px;
+    background: rgb(219, 0, 0);
+    border-color: transparent;
+}
+}

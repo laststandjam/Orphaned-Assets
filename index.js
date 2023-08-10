@@ -107,7 +107,7 @@ const loadItemVariants = async () => {
 	// grab unique types
 	const reqTypes = [...targetTypes];
 	let continuationToken = null; // initialize the continuation token
-  
+	
 	try {
 	  while (true) {
 		// get all variants of each type
@@ -115,15 +115,14 @@ const loadItemVariants = async () => {
 		  const response = await $.ajax({
 			url: basePath + `/types/${req}/variants`,
 			dataType: 'text',
-			// key and header go here
+			// key goes here
 			beforeSend: function (xhr, settings) {
 			  if (key) {
 				xhr.setRequestHeader('Authorization', 'Bearer ' + key);
 			  }
-			},
-			// add the continuation token to the request
-			data: {
-			  continuationToken: continuationToken
+			  if (continuationToken) {
+				xhr.setRequestHeader('x-continuation', continuationToken); // Set the continuation token in the header
+			  }
 			}
 		  });
   
@@ -131,16 +130,17 @@ const loadItemVariants = async () => {
 		  let returnedElement = JSON.parse(response);
 		  return {
 			type: req,
-			variants: returnedElement.variants
+			variants: returnedElement.variants,
+			continuationToken: returnedElement.continuationToken // save the continuation token from the response
 		  };
 		}));
   
 		processVariants(responses);
   
-		// check if there is a continuation token in the response
+		// check if there is a continuation token in the response of the last request
 		const lastResponse = responses[responses.length - 1];
 		if (lastResponse && lastResponse.continuationToken) {
-		  continuationToken = lastResponse.continuationToken;
+		  continuationToken = lastResponse.continuationToken; // update the continuation token
 		} else {
 		  break; // exit the loop if there is no continuation token
 		}
@@ -152,6 +152,7 @@ const loadItemVariants = async () => {
 	  $('.overlay').hide();
 	}
   };
+  
  
 
 function processVariants(data) {

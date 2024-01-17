@@ -13,7 +13,7 @@ let basePath = ""
 const targetTypes = new Set()
 const targetElements = []
 const variantResponse = []
-let assets
+
 
 // targets = [{type:}]
 
@@ -95,6 +95,7 @@ function loadTypes() {
 						}
 					}
 				}
+				
 				loadItemVariants();
 			}
 		}
@@ -104,60 +105,80 @@ function loadTypes() {
 
 
 const loadItemVariants = async () => {
-	// grab unique types
 	const reqTypes = [...targetTypes];
-	let continuationToken = null; // initialize the continuation token
-	
-	try {
-	  while (true) {
-		// get all variants of each type
-		const responses = await Promise.all(reqTypes.map(async (req) => {
-		  const response = await $.ajax({
-			url: basePath + `/types/${req}/variants`,
-			dataType: 'text',
-			// key goes here
-			beforeSend: function (xhr, settings) {
-			  if (key) {
-				xhr.setRequestHeader('Authorization', 'Bearer ' + key);
-			  }
-			  if (continuationToken) {
-				xhr.setRequestHeader('x-continuation', continuationToken); // Set the continuation token in the header
-			  }
+	let continuationToken = null;
+	let retryCount = 0;
+	const allVariants = [];
+	const maxRetryAttempts = 3;
+	const retryDelay = 6000000;
+  
+	console.log(reqTypes);
+  
+	const handleRequest = async (req) => {
+	  try {
+		const response = await $.ajax({
+		  url: `${basePath}/types/${req}/variants`,
+		  dataType: 'json',
+		  beforeSend: function (xhr, settings) {
+			if (key) {
+			  xhr.setRequestHeader('Authorization', `Bearer ${key}`);
 			}
-		  });
+			if (continuationToken) {
+			  xhr.setRequestHeader('X-Continuation', continuationToken);
+			}
+		  },
+		});
   
-		  // success logic goes here
-		  let returnedElement = JSON.parse(response);
-		  return {
-			type: req,
-			variants: returnedElement.variants,
-			continuationToken: returnedElement.continuationToken // save the continuation token from the response
-		  };
-		}));
+		console.log(response);
+		const { variants, pagination } = response;
   
-		processVariants(responses);
+		allVariants.push({ type: req, variants });
   
-		// check if there is a continuation token in the response of the last request
-		const lastResponse = responses[responses.length - 1];
-		if (lastResponse && lastResponse.continuationToken) {
-		  continuationToken = lastResponse.continuationToken; // update the continuation token
+		if (pagination && pagination.continuation_token) {
+		  continuationToken = pagination.continuation_token;
+		  // Make the subsequent request here and await it
+		  await handleRequest(req);
 		} else {
-		  break; // exit the loop if there is no continuation token
+		  continuationToken = null; // Reset continuationToken when there's no more token
+		  return false;
+		}
+	  } catch (error) {
+		if (error.status === 429 && retryCount < maxRetryAttempts) {
+		  console.log(`Retrying request for ${req}, Retry count: ${retryCount}`);
+		  const waitTime = Math.pow(2, retryCount) * retryDelay;
+		  await new Promise((resolve) => setTimeout(resolve, waitTime));
+		  retryCount++;
+		  // Retry the request
+		  return await handleRequest(req);
+		} else {
+		  throw error;
 		}
 	  }
+	};
+  
+	try {
+	  // Start the recursive request handling for all reqTypes
+	  for (const req of reqTypes) {
+		await handleRequest(req);
+	  }
+  
+	  // After all requests are completed, call processVariants once with all variants
+	  processVariants(allVariants);
 	} catch (error) {
+	  console.error('Error in loadItemVariants:', error);
 	  $('#msg').html(
-		'No data found. Please make sure you have the correct project id, language, and the secured access is turned off (or provide a preview token).'
+		'An error occurred. Please check the console for details.'
 	  );
 	  $('.overlay').hide();
 	}
   };
   
+  
  
 
 function processVariants(data) {
 	console.log('processVariants hit')
-	console.log(targetElements)
+	console.log('data', data)
 	targetElements.forEach(targetType => {
 
 
@@ -205,13 +226,16 @@ function processVariants(data) {
 
 					found.components.forEach(component => {
 						//figure out what Item Type the Component is 
+						console.log(targetElements)
 						const componentType = targetElements.find(targetElement => targetElement.typeID === component.type.id)
-						console.log("componet type", componentType)
+						console.log(targetElement)
+						console.log("componet type", componentType, component.type.id)
 
+						if(componentType){
 						component.elements.forEach(element => {
 							const componentElement = componentType.elements.find(targetElement => element.element.id === targetElement.elementID)
 							
-
+							
 							if(componentElement){
 								console.log("check out this element type", componentElement)
 							if (componentElement.elementType === "rich_text" && found.value.includes('data-asset-id')) {
@@ -240,7 +264,7 @@ function processVariants(data) {
 								
 							
 							}}
-						})
+						})}
 
 
 					})
@@ -261,9 +285,12 @@ function processVariants(data) {
 	// buildTable()
 }
 
-const loadAssets = (xc) => {
-	var url = basePath + "/assets";
+const loadAssets = (xc, retryCount = 0, allAssets = []) => {
+	const url = basePath + "/assets";
+	const maxRetryAttempts = 3;
+	const retryDelay = 3000000; // 6 seconds
 	
+  
 	$.ajax({
 	  url: url,
 	  dataType: 'text',
@@ -276,32 +303,46 @@ const loadAssets = (xc) => {
 		}
 	  },
 	  success: function (data, textStatus, request) {
+		console.log (data)
 		data = JSON.parse(data);
-		
-		if (data.assets.length > 0) {
-		  var xc = request.getResponseHeader('X-Continuation');
-		  if (xc) {
-			loadAssets(xc);
+  
+		if (data.assets.length>0) {
+
+		  if (data.pagination.continuation_token) {
+			// Make the subsequent request here and pass the continuation token
+			allAssets.push(...data.assets)
+			let newXC=data.pagination.continuation_token
+			loadAssets(newXC, 0, allAssets);
 		  } else {
-			assets = data.assets;
-			processAssets();
+			allAssets.push(...data.assets)
+			processAssets(allAssets);
 		  }
 		} else {
 		  console.log("No Assets found");
-		  $("#msg").html("No Assets found. Please make sure your project has items in the specified language.");
+		  $("#msg").html("No Assets found.");
 		  $('.overlay').hide();
 		}
 	  },
 	  error: function (jqXHR, textStatus, errorThrown) {
-		$("#msg").html("No data found. Please make sure you have the correct project id, language, and the secured access is turned off (or provide a preview token).");
-		$('.overlay').hide();
+		if (jqXHR.status === 429 && retryCount < maxRetryAttempts) {
+		  console.log(`Retrying request for assets, Retry count: ${retryCount}`);
+		  const waitTime = Math.pow(2, retryCount) * retryDelay;
+		  setTimeout(() => {
+			// Retry the request with an increased retry count
+			loadAssets(xc, retryCount + 1);
+		  }, waitTime);
+		} else {
+		  $("#msg").html("No data found. Please make sure you have the correct project id and Managment API Key");
+		  $('.overlay').hide();
+		}
 	  }
 	});
   };
   
+  
 
-const processAssets = () => {
-
+const processAssets = (assets) => {
+	console.log(assets)
 	const results = assets.forEach(asset => {
 		const item = items.find(item => item.assetValue === asset.id);
 

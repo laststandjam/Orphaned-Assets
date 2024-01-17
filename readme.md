@@ -12,7 +12,7 @@ The Kontent.ai Asset Finder is a powerful tool designed to help you locate and m
 ## Usage
 
 1. Insert Your Enviroment ID and Managment API Key  
-2. Run Tool 
+2. Run Tool
 
 ## Demo 
 https://darling-bunny-e6b4f7.netlify.app/
